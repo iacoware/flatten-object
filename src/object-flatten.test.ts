@@ -9,15 +9,25 @@ test("simple obj", () => {
     expect(res).toStrictEqual({ a: "a" })
 })
 
-const flatten = (obj: object) => {
-    const keys = Object.keys(obj)
+test("nested obj", () => {
+    const res = flatten({ a: { b: "z" } })
+    expect(res).toStrictEqual({ "a.b": "z" })
+})
 
+const flatten = (obj: object) => {
     const finalObj = {}
-    for (const key of keys) {
+    for (const key in obj) {
+        if (typeof obj[key] === "object") {
+            const nestedObj = flatten(obj[key])
+            for (const nestedKey in nestedObj) {
+                const finalKey = `${key}.${nestedKey}`
+                finalObj[finalKey] = nestedObj[nestedKey]
+            }
+            continue
+        }
         const finalKey = key
-        const finalValue = obj[key]
-        finalObj[finalKey] = finalValue
+        finalObj[finalKey] = obj[key]
     }
 
-    return obj
+    return finalObj
 }
