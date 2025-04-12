@@ -34,19 +34,11 @@ const flatten = (obj: object) => {
             continue
         }
 
-        const isArray = Array.isArray(currentObj)
-
         for (const key in currentObj) {
             const value = currentObj[key]
-            const newPath = getNewPath(currentPath, isArray, key)
+            const newPath = getNewPath(currentObj, currentPath, key)
 
-            if (
-                typeof value === "object" &&
-                value !== null &&
-                !Array.isArray(value)
-            ) {
-                stack.push({ currentObj: value, currentPath: newPath })
-            } else if (Array.isArray(value)) {
+            if (isObjectOrArray(value)) {
                 stack.push({ currentObj: value, currentPath: newPath })
             } else {
                 newObj[newPath] = value
@@ -54,25 +46,16 @@ const flatten = (obj: object) => {
         }
     }
 
-    /*for (const key in obj) {
-        if (typeof obj[key] === "object") {
-            const nestedObj = flatten(obj[key])
-            for (const nestedKey in nestedObj) {
-                const finalKey = `${key}.${nestedKey}`
-                newObj[finalKey] = nestedObj[nestedKey]
-            }
-        } else {
-            newObj[key] = obj[key]
-        }
-    }*/
-
     return newObj
 }
 
-function getNewPath(currentPath: string, isArray: boolean, key: string) {
-    return currentPath
-        ? isArray
-            ? `${currentPath}[${key}]`
-            : `${currentPath}.${key}`
-        : key
+function getNewPath(currentObj: object, currentPath: string, key: string) {
+    const isArray = Array.isArray(currentObj)
+
+    if (!currentPath) return key
+    return isArray ? `${currentPath}[${key}]` : `${currentPath}.${key}`
+}
+
+function isObjectOrArray(value: unknown) {
+    return typeof value === "object" && value !== null
 }
