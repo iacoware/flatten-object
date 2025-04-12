@@ -1,0 +1,39 @@
+{
+  "name": "node-playground",
+  "version": "1.0.0",
+  "description": "",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "cli": "tsx ./src/index.ts",
+    "build": "npm run clean && tsc",
+    "clean": "rimraf .build .coverage",
+    "typecheck": "tsc --noemit",
+    "typecheck:w": "tsc --noemit --watch",
+    "tc": "npm run typecheck",
+    "tc:w": "npm run typecheck:w",
+    "lint": "eslint src",
+    "test": "vitest",
+    "freshstart": "rimraf .git && git init && git add -A && git commit -m 'Initial commit'"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.24.0",
+    "@types/node": "22.14.1",
+    "eslint": "9.24.0",
+    "eslint-config-prettier": "10.1.2",
+    "globals": "^16.0.0",
+    "prettier": "3.5.3",
+    "rimraf": "6.0.1",
+    "tsx": "4.19.3",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.29.1",
+    "vitest": "3.1.1"
+  },
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.0",
+  "dependencies": {
+    "prune": "^0.0.2"
+  }
+}
