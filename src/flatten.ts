@@ -1,19 +1,27 @@
-type StackItem = { currentObj: object; currentPath: string }
+type StackItem = { currentObjOrArray: object; currentPath: string }
 
-export const flatten = (obj: object): Record<string, unknown> => {
+export const flatten = (objOrArray: object): Record<string, unknown> => {
     const newObj = {}
-    const stack = new Array<StackItem>({ currentObj: obj, currentPath: "" })
+    const stack = new Array<StackItem>({
+        currentObjOrArray: objOrArray,
+        currentPath: "",
+    })
 
-    while (stack.length) {
-        const { currentObj, currentPath } = stack.pop()!
+    while (stack.length > 0) {
+        const item = stack.pop()
+        if (!item) throw new Error(cannotHappen)
+        const { currentObjOrArray, currentPath } = item
+        const isArray = Array.isArray(currentObjOrArray)
 
-        for (const key of Object.keys(currentObj)) {
-            const value = currentObj[key]
-            const newPath = getNewPath(currentObj, currentPath, key)
+        for (const key of Object.keys(currentObjOrArray)) {
+            const value = currentObjOrArray[key]
+            const newPath = getNewPath(isArray, currentPath, key)
 
             if (isObjectOrArray(value)) {
-                stack.push({ currentObj: value, currentPath: newPath })
+                // object or array, dig deeper
+                stack.push({ currentObjOrArray: value, currentPath: newPath })
             } else {
+                // literal value, copy to new object as-is
                 newObj[newPath] = value
             }
         }
@@ -22,12 +30,10 @@ export const flatten = (obj: object): Record<string, unknown> => {
     return newObj
 }
 
-function getNewPath(currentObj: object, currentPath: string, key: string) {
-    if (!currentPath) return Array.isArray(currentObj) ? `[${key}]` : key
+function getNewPath(isArray: boolean, currentPath: string, key: string) {
+    if (isArray) return `${currentPath}[${key}]`
 
-    return Array.isArray(currentObj)
-        ? `${currentPath}[${key}]`
-        : `${currentPath}.${key}`
+    return currentPath ? `${currentPath}.${key}` : key
 }
 
 function isObjectOrArray(value: unknown) {
@@ -38,3 +44,5 @@ function isObjectOrArray(value: unknown) {
         !(value instanceof RegExp)
     )
 }
+
+const cannotHappen = "Cannot happen, but TS type inference can't detect it"
