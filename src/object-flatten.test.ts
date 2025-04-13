@@ -1,4 +1,5 @@
 import { expect, test } from "vitest"
+import { flatten } from "./flatten"
 
 test("simple obj", () => {
     const res = flatten({ a: "a" })
@@ -20,42 +21,33 @@ test("simple array", () => {
     expect(res).toStrictEqual({ "a[0]": "a" })
 })
 
-type StackItem = { currentObj: object; currentPath: string }
+test("simple array, many items", () => {
+    const res = flatten({ a: ["a", "b", "c"] })
+    expect(res).toStrictEqual({ "a[0]": "a", "a[1]": "b", "a[2]": "c" })
+})
 
-const flatten = (obj: object) => {
-    const newObj = {}
-    const stack = new Array<StackItem>({ currentObj: obj, currentPath: "" })
+test("object array", () => {
+    const res = flatten({ a: [{ b: "z" }] })
+    expect(res).toStrictEqual({ "a[0].b": "z" })
+})
 
-    while (stack.length) {
-        const { currentObj, currentPath } = stack.pop()!
+test("nested array", () => {
+    const res = flatten({ a: [["b"]] })
+    expect(res).toStrictEqual({ "a[0][0]": "b" })
+})
 
-        if (typeof currentObj !== "object" || currentObj === null) {
-            newObj[currentPath] = currentObj
-            continue
-        }
+test("Date prop", () => {
+    const now = new Date()
+    const res = flatten({ a: now })
+    expect(res).toStrictEqual({ a: now })
+})
 
-        for (const key in currentObj) {
-            const value = currentObj[key]
-            const newPath = getNewPath(currentObj, currentPath, key)
+test("RegExp prop", () => {
+    const res = flatten({ a: /abc/ })
+    expect(res).toStrictEqual({ a: /abc/ })
+})
 
-            if (isObjectOrArray(value)) {
-                stack.push({ currentObj: value, currentPath: newPath })
-            } else {
-                newObj[newPath] = value
-            }
-        }
-    }
-
-    return newObj
-}
-
-function getNewPath(currentObj: object, currentPath: string, key: string) {
-    const isArray = Array.isArray(currentObj)
-
-    if (!currentPath) return key
-    return isArray ? `${currentPath}[${key}]` : `${currentPath}.${key}`
-}
-
-function isObjectOrArray(value: unknown) {
-    return typeof value === "object" && value !== null
-}
+test("array", () => {
+    const res = flatten(["a"])
+    expect(res).toStrictEqual({ "[0]": "a" })
+})
