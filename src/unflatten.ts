@@ -16,14 +16,11 @@ function unflattenProp(
 
     let currentObj = newObj
     for (let i = 0; i < fields.length; i++) {
-        const isLast = i === fields.length - 1
         const field = fields[i]
+        const isLast = i === fields.length - 1
         const nextField = fields[i + 1]
         const nextIsArray = typeof nextField === "number"
-        if (field === undefined)
-            throw new Error(
-                "Cannot happen, but TS type inference can't detect it",
-            )
+        if (field === undefined) throw new Error(cannotHappen)
 
         if (isLast) {
             currentObj[field] = lastPropValue
@@ -55,3 +52,5 @@ function parseFlatArrayProp(prop: string, arrayMatches: RegExpMatchArray) {
     const arrayIndexes = arrayMatches.map((match) => Number(match.slice(1, -1)))
     return [prop.slice(0, openBracketIndex), ...arrayIndexes]
 }
+
+const cannotHappen = "Cannot happen, but TS type inference can't detect it"
