@@ -36,16 +36,22 @@ function unflattenProp(
     }
 }
 
-const arrayRegex = /\[(\d+)\]$/
 function parseFlatProp(flatProp: string) {
     const props = flatProp.split(".")
     return props.flatMap((prop) => {
-        const match = prop.match(arrayRegex)
-        if (match) {
-            const [, index] = match
-            return [prop.slice(0, match.index), Number(index)]
-        } else {
-            return [prop]
-        }
+        return parseSingleFlatProp(prop)
     })
+}
+
+const arrayRegex = /\[(\d+)\]/g
+function parseSingleFlatProp(prop: string) {
+    const arrayMatches = prop.match(arrayRegex)
+    if (!arrayMatches) return [prop]
+    return parseFlatArrayProp(prop, arrayMatches)
+}
+
+function parseFlatArrayProp(prop: string, arrayMatches: RegExpMatchArray) {
+    const openBracketIndex = prop.indexOf("[")
+    const arrayIndexes = arrayMatches.map((match) => Number(match.slice(1, -1)))
+    return [prop.slice(0, openBracketIndex), ...arrayIndexes]
 }
