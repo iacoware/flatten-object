@@ -20,3 +20,13 @@ test("multiple props", () => {
     const res = unflatten({ a: "a", b: "b", c: "c" })
     expect(res).toStrictEqual({ a: "a", b: "b", c: "c" })
 })
+
+test("simple array", () => {
+    const res = unflatten({ "a[0]": "a" })
+    expect(res).toStrictEqual({ a: ["a"] })
+})
+
+test("simple array, many items", () => {
+    const res = unflatten({ "a[0]": "a", "a[1]": "b", "a[2]": "c" })
+    expect(res).toStrictEqual({ a: ["a", "b", "c"] })
+})
